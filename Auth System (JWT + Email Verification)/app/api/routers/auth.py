@@ -1,4 +1,4 @@
-from app.schemas.user import UserRead, UserCreate, UserLogin, LoginResponse
+from app.schemas.user import ForgotPasswordRequest, ResetPasswordRequest, UserRead, UserCreate, UserLogin, LoginResponse
 # from fastapi.security import OAuth2PasswordRequestForm
 from typing import Annotated
 from app.api.dependencies import UserServiceDep
@@ -23,3 +23,27 @@ async def login_user(service: UserServiceDep, request_form: Annotated[UserLogin,
         "token": token,
         "type": "Bearer"
     }
+
+@router.post("/logout")
+async def logout():
+    return {
+        "message": "Frontend should delete token"
+    }
+
+@router.post("/forgot-password")
+async def forgot_password(
+    service: UserServiceDep,
+    data: ForgotPasswordRequest
+):
+    return await service.create_reset_token(data.email)
+
+
+@router.post("/reset-password")
+async def reset_password(
+    service: UserServiceDep,
+    data: ResetPasswordRequest
+):
+    return await service.reset_password(
+        data.token,
+        data.new_password
+    )
