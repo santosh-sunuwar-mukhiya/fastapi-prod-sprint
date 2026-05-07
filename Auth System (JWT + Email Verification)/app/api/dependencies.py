@@ -18,8 +18,21 @@ SessionDep = Annotated[AsyncSession, Depends(get_session)]
 def get_user_service(session: SessionDep):
     return UserService(session)
 
+def get_access_token(token: Annotated[str, Depends(oauth2_scheme)]) ->dict:
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid JWT Login Token",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = decode_token(token)
+    except JWTError:
+        raise credentials_exception
+    
+    return payload
+
 async def get_current_user(
-    token: Annotated[str, Depends(oauth2_scheme)],
+    token_data: Annotated[dict, Depends(get_access_token)],
     session: SessionDep
 ):
     credentials_exception = HTTPException(
@@ -29,9 +42,8 @@ async def get_current_user(
     )
     
     try:
-        payload = decode_token(token)
 
-        user_data = payload.get("user")
+        user_data = token_data.get("user")
 
         if user_data is None:
             raise credentials_exception
@@ -48,7 +60,7 @@ async def get_current_user(
         raise credentials_exception
 
     result = await session.execute(
-        select(User).where(User.id == user_id)
+        select(User).where(User.id == user_id) # type: ignore
     )
 
     user = result.scalar()
@@ -59,3 +71,5 @@ async def get_current_user(
     return user
 
 UserServiceDep = Annotated[UserService, Depends(get_user_service)]
+
+UserDep = Annotated[User, Depends(get_current_user)]
