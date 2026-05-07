@@ -20,3 +20,10 @@ class LoginResponse(BaseModel):
     email: EmailStr
     token: str
     type: str
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
