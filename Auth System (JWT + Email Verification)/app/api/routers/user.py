@@ -1,20 +1,14 @@
-from app.schemas.user import UserRead
-from app.api.dependencies import UserServiceDep
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from app.api.dependencies import get_current_user
+from app.db.models import User
+from typing import Annotated 
 
-router = APIRouter(prefix="/user", tags=["User"])
+router = APIRouter(prefix="/profile", tags=["User"])
 
-# User profile endpoints
-# @router.get("/me", response_model=UserRead)
-# async def get_current_user(current_user):
-#     return current_user
-
-# @router.put("/me", response_model=UserRead)
-# async def update_profile(current_user, updates):
-#     # Update user profile logic
-#     pass
-
-# @router.delete("/me")
-# async def delete_account(current_user):
-#     # Delete user logic
-#     pass
+@router.get("/me")
+async def me(current_user: Annotated[User, Depends(get_current_user)]):
+    return {
+        "id": current_user.id,
+        "email": current_user.email,
+        "username": current_user.username
+    }
