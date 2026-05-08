@@ -1,8 +1,8 @@
-from app.schemas.user import ForgotPasswordRequest, ResetPasswordRequest, UserRead, UserCreate, UserLogin, LoginResponse
-# from fastapi.security import OAuth2PasswordRequestForm
+from app.schemas.user import ForgotPasswordRequest, ResetPasswordRequest, UserRead, UserCreate, LoginResponse
 from typing import Annotated
-from app.api.dependencies import UserServiceDep
+from app.api.dependencies import UserDep, UserServiceDep
 from fastapi import APIRouter, Depends
+from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter(prefix="/user", tags=["Auth"])
 
@@ -11,17 +11,14 @@ async def register_user(service: UserServiceDep, user_create: UserCreate):
     return await service.add(user_create)
 
 @router.post("/Login", response_model=LoginResponse)
-async def login_user(service: UserServiceDep, request_form: Annotated[UserLogin, Depends()]):
-    user, token = await service.token(
-        request_form.email,
-        request_form.password
-    )   # UserLogin = used instead of OAuth2PasswordRequestForm
+async def login_user(service: UserServiceDep, form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
+    user,token = await service.token(form_data.username, form_data.password)
 
     return {
+        "access_token": token,
+        "token_type": "bearer",
         "id": user.id,
-        "email": user.email,
-        "token": token,
-        "type": "Bearer"
+        "email": user.email
     }
 
 @router.post("/logout")
@@ -40,6 +37,7 @@ async def forgot_password(
 
 @router.post("/reset-password")
 async def reset_password(
+    user: UserDep,
     service: UserServiceDep,
     data: ResetPasswordRequest
 ):
