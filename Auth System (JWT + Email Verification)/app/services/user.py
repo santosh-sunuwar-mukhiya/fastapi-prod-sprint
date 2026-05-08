@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.schemas.user import UserCreate, UserLogin
+from app.schemas.user import UserCreate
 from app.db.models import User
 from app.core.security import decode_token, hash_password, verify_password, create_token
 from sqlalchemy import select
