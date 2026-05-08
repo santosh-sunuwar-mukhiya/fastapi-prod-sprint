@@ -8,18 +8,15 @@ class BaseUser(BaseModel):
 class UserCreate(BaseUser):
     username: str
 
-class UserLogin(BaseUser):
-    pass
-
 class UserRead(BaseModel):
     id: UUID
     email: EmailStr
 
 class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
     id: UUID
     email: EmailStr
-    token: str
-    type: str
 
 class ForgotPasswordRequest(BaseModel):
     email: EmailStr
