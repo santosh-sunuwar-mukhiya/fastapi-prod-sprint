@@ -21,7 +21,7 @@ def get_user_service(session: SessionDep):
 def get_access_token(token: Annotated[str, Depends(oauth2_scheme)]) ->dict:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Invalid JWT Login Token",
+        detail="Invalid or Expired JWT Login Token",
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
