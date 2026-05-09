@@ -14,13 +14,21 @@ def hash_password(password: str) -> str:
 def verify_password(password: str, hashed: str) -> bool:
     return pwd_hasher.verify(password, hashed)
 
-# Create JWT
-def create_token(data: dict):
+# Create Access Token (short-lived: 30 minutes)
+def create_access_token(data: dict) -> str:
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + timedelta(minutes=15)
-    to_encode.update({"exp": expire, "jti": str(uuid4())})
+    expire = datetime.now(timezone.utc) + timedelta(minutes=security_settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire, "jti": str(uuid4()), "type": "access"})
     return jwt.encode(to_encode, key=security_settings.JWT_SECRET, algorithm=security_settings.JWT_ALGORITHM)
 
+# Create Refresh Token (long-lived: 7 days)
+def create_refresh_token(data: dict) -> str:
+    to_encode = data.copy()
+    expire = datetime.now(timezone.utc) + timedelta(days=security_settings.REFRESH_TOKEN_EXPIRE_DAYS)
+    to_encode.update({"exp": expire, "jti": str(uuid4()), "type": "refresh"})
+    return jwt.encode(to_encode, key=security_settings.JWT_REFRESH_SECRET, algorithm=security_settings.JWT_ALGORITHM)
+
 # Decode JWT
-def decode_token(token: str):
-    return jwt.decode(token, key=security_settings.JWT_SECRET, algorithms=[security_settings.JWT_ALGORITHM])
+def decode_token(token: str, token_type: str = "access") -> dict:
+    key = security_settings.JWT_SECRET if token_type == "access" else security_settings.JWT_REFRESH_SECRET
+    return jwt.decode(token, key=key, algorithms=[security_settings.JWT_ALGORITHM])
