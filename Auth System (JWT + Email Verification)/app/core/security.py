@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from jose import jwt
+from uuid import uuid4
 from pwdlib import PasswordHash
 from app.core.config import security_settings
 
@@ -17,7 +18,7 @@ def verify_password(password: str, hashed: str) -> bool:
 def create_token(data: dict):
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + timedelta(minutes=15)
-    to_encode.update({"exp": expire})
+    to_encode.update({"exp": expire, "jti": str(uuid4())})
     return jwt.encode(to_encode, key=security_settings.JWT_SECRET, algorithm=security_settings.JWT_ALGORITHM)
 
 # Decode JWT
