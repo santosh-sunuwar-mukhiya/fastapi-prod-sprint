@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas.user import UserCreate
 from app.db.models import User
-from app.core.security import decode_token, hash_password, verify_password, create_token
+from app.core.security import decode_token, hash_password, verify_password, create_access_token, create_refresh_token
 from sqlalchemy import select
 from fastapi import status, HTTPException
 
@@ -53,16 +53,17 @@ class UserService:
         if not password_is_correct:
             raise credentials_exception
         
-        token = create_token(
-            data={
-                "user":{
-                    "name":user.username,
-                    "id":str(user.id),
-                }
+        token_data = {
+            "user":{
+                "name":user.username,
+                "id":str(user.id),
             }
-        )
+        }
+        
+        access_token = create_access_token(data=token_data)
+        refresh_token = create_refresh_token(data=token_data)
 
-        return user, token
+        return user, access_token, refresh_token
     
     async def create_reset_token(self, email: str):
         result = await self.session.execute(
