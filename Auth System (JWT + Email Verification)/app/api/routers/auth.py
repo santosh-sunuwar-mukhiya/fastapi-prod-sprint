@@ -1,6 +1,6 @@
 from app.schemas.user import ForgotPasswordRequest, ResetPasswordRequest, UserRead, UserCreate, LoginResponse
 from typing import Annotated
-from app.api.dependencies import UserDep, UserServiceDep
+from app.api.dependencies import UserDep, UserServiceDep, get_access_token
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -22,7 +22,9 @@ async def login_user(service: UserServiceDep, form_data: Annotated[OAuth2Passwor
     }
 
 @router.post("/logout")
-async def logout():
+async def logout(
+    token_data: Annotated[dict, Depends(get_access_token)]
+):
     return {
         "message": "Frontend should delete token"
     }
