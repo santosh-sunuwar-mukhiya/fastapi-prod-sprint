@@ -94,3 +94,5 @@ local_settings.py
 node_modules/
 npm-debug.log
 yarn-error.log
+.DS_Store
+*.zip
