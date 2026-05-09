@@ -13,6 +13,9 @@ _base_config = SettingsConfigDict(
 class DatabaseSettings(BaseSettings):
     DATABASE_URL: str
 
+    REDIS_HOST: str
+    REDIS_PORT: str
+
     model_config = _base_config
 
 class SecuritySettings(BaseSettings):
