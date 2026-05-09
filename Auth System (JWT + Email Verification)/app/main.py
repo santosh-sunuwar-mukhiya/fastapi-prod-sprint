@@ -3,6 +3,7 @@ from scalar_fastapi import get_scalar_api_reference
 from contextlib import asynccontextmanager
 from app.db.session import create_db_tables
 from app.api.router import master_router
+from fastapi.middleware.cors import CORSMiddleware
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -17,6 +18,15 @@ app = FastAPI(
     description="JWT + Email Verification API",
     version="1.0.0",
     lifespan=lifespan
+)
+
+# Add CORS middleware with cookie support
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://localhost:8000"],  # Frontend URLs
+    allow_credentials=True,  # Allow cookies
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(master_router)
