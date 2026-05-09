@@ -14,13 +14,16 @@ class DatabaseSettings(BaseSettings):
     DATABASE_URL: str
 
     REDIS_HOST: str
-    REDIS_PORT: str
+    REDIS_PORT: int
 
     model_config = _base_config
 
 class SecuritySettings(BaseSettings):
     JWT_SECRET: str
     JWT_ALGORITHM: str
+    JWT_REFRESH_SECRET: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
     model_config = _base_config
 
